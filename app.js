@@ -57,43 +57,31 @@ var x = 100,
     y = 100;
 
 function render () {
-  var dx = speed * Math.cos(direction),
-      dy = -speed * Math.sin(direction);
+  var sx = Math.cos(direction),
+      sy = Math.sin(direction),
+      dx = speed * sx,
+      dy = -speed * sy;
 
   x += dx;
   y += dy;
 
-  function flip(xy) {
-    var sx = Math.cos(direction);
-    var sy = Math.sin(direction);
-
-    sx = sx * xy.x;
-    sy = sy * xy.y;
-
-    direction = Math.atan2(sy, sx);
+  if (x < 0 && sx < 0) {
+    direction = Math.atan2(sy, -sx);
+  }
+  else if (x + 40 > 640 && sx > 0) {
+    direction = Math.atan2(sy, -sx);
   }
 
-  if (x < 0) {
-    flip({x: -1, y: 1});
-    x = 0;
+  if (y < 0 && sy > 0) {
+    direction = Math.atan2(-sy, sx);
   }
-  else if (x + 40 > 640) {
-    flip({x: -1, y: 1});
-    x = 640 - 40;
-  }
-
-  if (y < 0) {
-    flip({x: 1, y: -1});
-    y = 0;
-  }
-  else if (y + 40 > 480) {
-    flip({x: 1, y: -1});
-    y = 480 - 40;
+  else if (y + 40 > 480 && sy < 0) {
+    direction = Math.atan2(-sy, sx);
   }
 
   var padY = parseInt(leftPad.attr('y'), 10);
-  if ((x <= 30 + 20) && (y - 20 >= padY) && (y - 20 <= padY + 150)) {
-    flip({x: -1, y: 1});
+  if (sx < 0 && (x <= 30 + 20) && (y - 20 >= padY) && (y - 20 <= padY + 150)) {
+    direction = Math.atan2(sy, -sx);
   }
 
   var ratio = board[0][0].getBoundingClientRect().width / 640;
