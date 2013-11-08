@@ -91,6 +91,11 @@ function render () {
     y = 480 - 40;
   }
 
+  var padY = parseInt(leftPad.attr('y'), 10);
+  if ((x <= 30 + 20) && (y - 20 >= padY) && (y - 20 <= padY + 150)) {
+    flip({x: -1, y: 1});
+  }
+
   var ratio = board[0][0].getBoundingClientRect().width / 640;
 
   ball
