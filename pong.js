@@ -4,12 +4,12 @@ var ball = new Ball(board);
 var leftPad = new Pad(board, keyboard, 30);
 
 window.requestAnimFrame = (function(){
-  return window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame    ||
-          function( callback ){
-            window.setTimeout(callback, 1000 / 60);
-          };
+  return window.requestAnimationFrame
+      || window.webkitRequestAnimationFrame
+      || window.mozRequestAnimationFrame
+      || function (callback) {
+           window.setTimeout(callback, 1000 / 60);
+         };
 })();
 
 (function animloop(){
@@ -32,7 +32,7 @@ function render () {
   ball.move();
 }
 
-function Board(keyboard, width, height) {
+function Board (keyboard, width, height) {
   var svg, rect;
 
   this.width = width;
