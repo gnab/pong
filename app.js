@@ -1,22 +1,7 @@
-var svg = d3.select('body')
-      .append('svg')
-      .attr('height', '100%')
-      .attr('width', '100%')
-      .attr('viewBox', '0 0 640 480');
-
-var board = svg
-      .append('rect')
-        .attr('opacity', 0)
-        .attr('height', '100%')
-        .attr('width', '100%')
-        .attr('fill', 'green')
-        .transition()
-        .duration(1000)
-        .attr('opacity', 1);
-
 var keyboard = new Keyboard();
-var ball = new Ball();
-var leftPad = new Pad(keyboard, 30);
+var board = new Board(keyboard, 640, 480);
+var ball = new Ball(board);
+var leftPad = new Pad(board, keyboard, 30);
 
 window.requestAnimFrame = (function(){
   return window.requestAnimationFrame       ||
@@ -47,8 +32,32 @@ function render () {
   ball.move();
 }
 
+function Board(keyboard, width, height) {
+  var svg, rect;
 
-function Ball () {
+  this.width = width;
+  this.height = height;
+
+  // Layer
+  svg = d3.select('body')
+          .append('svg')
+            .attr('height', '100%')
+            .attr('width', '100%')
+            .attr('viewBox', '0 0 ' + width + ' ' + height);
+
+  // Contents
+  rect = svg
+          .append('rect')
+            .attr('opacity', 0)
+            .attr('height', '100%')
+            .attr('width', '100%')
+            .attr('fill', 'green')
+            .transition()
+              .duration(1000)
+              .attr('opacity', 1);
+}
+
+function Ball (board) {
   var svg,
       circle;
 
@@ -69,14 +78,14 @@ function Ball () {
     if (this.x < 0 && sx < 0) {
       this.direction = Math.atan2(sy, -sx);
     }
-    else if (this.x + 40 > 640 && sx > 0) {
+    else if (this.x + 40 > board.width && sx > 0) {
       this.direction = Math.atan2(sy, -sx);
     }
 
     if (this.y < 0 && sy > 0) {
       this.direction = Math.atan2(-sy, sx);
     }
-    else if (this.y + 40 > 480 && sy < 0) {
+    else if (this.y + 40 > board.height && sy < 0) {
       this.direction = Math.atan2(-sy, sx);
     }
 
@@ -89,7 +98,7 @@ function Ball () {
           .append('svg')
             .attr('height', '100%')
             .attr('width', '100%')
-            .attr('viewBox', '0 0 640 480')
+            .attr('viewBox', '0 0 ' + board.width + ' ' + board.height)
             .attr('style', 'position: absolute; top: 0; left: 0;');
 
   // Contents
@@ -101,7 +110,7 @@ function Ball () {
       .attr('fill', 'white');
 }
 
-function Pad (keyboard, x) {
+function Pad (board, keyboard, x) {
   var svg, rect;
 
   this.x = x;
@@ -139,7 +148,7 @@ function Pad (keyboard, x) {
               .append('svg')
                 .attr('height', '100%')
                 .attr('width', '100%')
-                .attr('viewBox', '0 0 640 480')
+                .attr('viewBox', '0 0 ' + board.width + ' ' + board.height)
                 .attr('style', 'position: absolute; top: 0; left: 0;');
 
   // Contents
