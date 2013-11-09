@@ -92,30 +92,26 @@ function render () {
 
 d3.select(document.body)
   .on('keydown', function () {
-      var direction;
-      // Down
       if (d3.event.keyCode === 40) {
-        direction = 1;
+        movePad(leftPad, 10);
       }
-      // Up
       else if (d3.event.keyCode === 38) {
-        direction = -1;
-      }
-      else {
-        return;
-      }
-
-      var height = parseInt(leftPad.attr('height'), 10),
-          currentY = parseInt(leftPad.attr('y'), 10),
-          newY = currentY + 10 * direction;
-
-      if (newY < 0) {
-        leftPad.attr('y', 0);
-      }
-      else if (newY > 480 - height) {
-        leftPad.attr('y', 480 - height);
-      }
-      else {
-        leftPad.attr('y', newY);
+        movePad(leftPad, -10);
       }
   });
+
+function movePad(pad, offset) {
+  var height = parseInt(pad.attr('height'), 10),
+      currentY = parseInt(pad.attr('y'), 10),
+      newY = currentY + offset;
+
+  if (newY < 0) {
+    pad.attr('y', 0);
+  }
+  else if (newY > 480 - height) {
+    pad.attr('y', 480 - height);
+  }
+  else {
+    pad.attr('y', newY);
+  }
+}
