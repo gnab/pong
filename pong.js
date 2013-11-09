@@ -6,7 +6,8 @@ function Game () {
   var ball = new Ball(board);
   var leftPad = new Pad(board, 30);
   var rightPad = new Pad(board, board.width - 20 - 30);
-  var computerPlayer = new FollowBall(rightPad, ball);
+  var player = new Player(keyboard, leftPad);
+  var computer = new ComputerPlayer(ball, rightPad);
 
   this.start = function () {
     var self = this;
@@ -30,9 +31,13 @@ function Game () {
       direction = Math.atan2(sy, -sx);
     }
 
-    leftPad.move(keyboard.keyDown, keyboard.keyUp);
-    computerPlayer.move();
     ball.move();
+    player.move();
+    computer.move();
+
+    ball.render();
+    leftPad.render();
+    rightPad.render();
   };
 
   var onIdle = window.requestAnimationFrame
@@ -101,7 +106,9 @@ function Ball (board) {
     else if (this.y + this.d > board.height && sy < 0) {
       this.direction = Math.atan2(-sy, sx);
     }
+  };
 
+  this.render = function () {
     var ratio = circle[0][0].getBoundingClientRect().width / this.d;
     svg[0][0].style['-webkit-transform'] = 'translate3d(' + this.x * ratio + 'px, ' + this.y * ratio + 'px, 0)';
   };
@@ -131,14 +138,7 @@ function Pad (board, x) {
   this.height = 150;
   this.width = 20;
 
-  this.move = function (down, up) {
-    if (down) {
-      this.y += 4;
-    }
-    else if (up) {
-      this.y += -4;
-    }
-
+  this.render = function () {
     if (this.y < 0) {
       this.y = 0;
     }
@@ -175,13 +175,23 @@ function Pad (board, x) {
       .attr('fill', 'white');
 }
 
-function FollowBall (pad, ball) {
+function Player (keyboard, pad) {
+  this.move = function () {
+    if (keyboard.keyDown) {
+      pad.y += 4;
+    }
+    else if (keyboard.keyUp) {
+      pad.y += -4;
+    }
+  };
+}
+
+function ComputerPlayer (ball, pad) {
   this.move = function () {
     var padCenter = pad.y + pad.height / 2,
         ballCenter = ball.y + ball.r;
 
     pad.y = ballCenter - pad.height / 2;
-    pad.move(false, false);
   };
 }
 
