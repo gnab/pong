@@ -1,38 +1,46 @@
-var keyboard = new Keyboard();
-var board = new Board(keyboard, 640, 480);
-var ball = new Ball(board);
-var leftPad = new Pad(board, 30);
-var rightPad = new Pad(board, board.width - 20 - 30);
-var computerPlayer = new FollowBall(rightPad, ball);
+var game = new Game().start();
 
-window.requestAnimFrame = (function(){
-  return window.requestAnimationFrame
+function Game () {
+  var keyboard = new Keyboard();
+  var board = new Board(keyboard, 640, 480);
+  var ball = new Ball(board);
+  var leftPad = new Pad(board, 30);
+  var rightPad = new Pad(board, board.width - 20 - 30);
+  var computerPlayer = new FollowBall(rightPad, ball);
+
+  this.start = function () {
+    var self = this;
+
+    !function loop () {
+      self.render();
+      onIdle(loop);
+    }();
+
+    return this;
+  };
+
+  this.render = function () {
+    var sx = Math.cos(ball.direction),
+        sy = Math.sin(ball.direction),
+        x = ball.x,
+        y = ball.y;
+
+    var pad = leftPad;
+    if (sx < 0 && (x <= pad.x + pad.width) && (y + 30 >= pad.y) && (y + 10 <= pad.y + pad.height)) {
+      direction = Math.atan2(sy, -sx);
+    }
+
+    leftPad.move(keyboard.keyDown, keyboard.keyUp);
+    computerPlayer.move();
+    ball.move();
+  };
+
+  var onIdle = window.requestAnimationFrame
       || window.webkitRequestAnimationFrame
       || window.mozRequestAnimationFrame
       || function (callback) {
-           window.setTimeout(callback, 1000 / 60);
-         };
-})();
-
-(function animloop(){
-  render();
-  requestAnimFrame(animloop);
-})();
-
-function render () {
-  var sx = Math.cos(ball.direction),
-      sy = Math.sin(ball.direction),
-      x = ball.x,
-      y = ball.y;
-
-  var pad = leftPad;
-  if (sx < 0 && (x <= pad.x + pad.width) && (y + 30 >= pad.y) && (y + 10 <= pad.y + pad.height)) {
-    direction = Math.atan2(sy, -sx);
-  }
-
-  leftPad.move(keyboard.keyDown, keyboard.keyUp);
-  computerPlayer.move();
-  ball.move();
+          window.setTimeout(callback, 1000 / 60);
+        };
 }
 
 function Board (keyboard, width, height) {
