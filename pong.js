@@ -1,23 +1,33 @@
 var game = new Game().start();
 
 function Game () {
-  var keyboard = new Keyboard();
-  var board = new Board(keyboard, 640, 480);
-  var ball = new Ball(board);
-  var leftPad = new Pad(board, 30);
-  var rightPad = new Pad(board, board.width - 20 - 30);
-  var player = new Player(keyboard, leftPad);
-  var computer = new ComputerPlayer(ball, rightPad);
+  var keyboard = new Keyboard(),
+      board = new Board(keyboard, 640, 480),
+      ball = new Ball(board),
+      leftPad = new Pad(board, 30),
+      rightPad = new Pad(board, board.width - 20 - 30),
+      player = new Player(keyboard, leftPad),
+      computer = new ComputerPlayer(ball, rightPad),
+      stopped = true;
 
   this.start = function () {
     var self = this;
 
+    stopped = false;
+
     !function loop () {
+      if (stopped) {
+        return;
+      }
       self.render();
       onIdle(loop);
     }();
 
     return this;
+  };
+
+  this.stop = function () {
+    stopped = true;
   };
 
   this.render = function () {
@@ -26,11 +36,6 @@ function Game () {
         x = ball.x,
         y = ball.y;
 
-    var pad = leftPad;
-    if (sx < 0 && (x <= pad.x + pad.width) && (y + 30 >= pad.y) && (y + 10 <= pad.y + pad.height)) {
-      direction = Math.atan2(sy, -sx);
-    }
-
     ball.move();
     player.move();
     computer.move();
@@ -38,6 +43,17 @@ function Game () {
     ball.render();
     leftPad.render();
     rightPad.render();
+
+    if (leftPad.hit(ball) || rightPad.hit(ball)) {
+      ball.flipX();
+    }
+
+    if (board.hitX(ball)) {
+      this.stop();
+    }
+    else if (board.hitY(ball)) {
+      ball.flipY();
+    }
   };
 
   var onIdle = window.requestAnimationFrame
@@ -53,6 +69,32 @@ function Board (keyboard, width, height) {
 
   this.width = width;
   this.height = height;
+
+  this.hitX = function (ball) {
+    var sx = Math.cos(ball.direction);
+
+    if (ball.x < 0 && sx < 0) {
+      return true;
+    }
+    else if (ball.x + ball.d > this.width && sx > 0) {
+      return true;
+    }
+
+    return false;
+  };
+
+  this.hitY = function (ball) {
+    var sy = Math.sin(ball.direction);
+
+    if (ball.y < 0 && sy > 0) {
+      return true;
+    }
+    else if (ball.y + ball.d > this.height && sy < 0) {
+      return true;
+    }
+
+    return false;
+  };
 
   // Layer
   svg = d3.select('body')
@@ -92,25 +134,25 @@ function Ball (board) {
 
     this.x += dx;
     this.y += dy;
-
-    if (this.x < 0 && sx < 0) {
-      this.direction = Math.atan2(sy, -sx);
-    }
-    else if (this.x + this.d > board.width && sx > 0) {
-      this.direction = Math.atan2(sy, -sx);
-    }
-
-    if (this.y < 0 && sy > 0) {
-      this.direction = Math.atan2(-sy, sx);
-    }
-    else if (this.y + this.d > board.height && sy < 0) {
-      this.direction = Math.atan2(-sy, sx);
-    }
   };
 
   this.render = function () {
     var ratio = circle[0][0].getBoundingClientRect().width / this.d;
     svg[0][0].style['-webkit-transform'] = 'translate3d(' + this.x * ratio + 'px, ' + this.y * ratio + 'px, 0)';
+  };
+
+  this.flipX = function () {
+    var sx = Math.cos(this.direction),
+        sy = Math.sin(this.direction);
+
+    this.direction = Math.atan2(sy, -sx);
+  };
+
+  this.flipY = function () {
+    var sx = Math.cos(this.direction),
+        sy = Math.sin(this.direction);
+
+    this.direction = Math.atan2(-sy, sx);
   };
 
   // Layer
@@ -152,6 +194,15 @@ function Pad (board, x) {
 
   this.center = function () {
     this.y = board.height / 2 - this.height / 2;
+  };
+
+  this.hit = function (ball) {
+    return false;
+
+    //var pad = leftPad;
+    //if (sx < 0 && (x <= pad.x + pad.width) && (y + 30 >= pad.y) && (y + 10 <= pad.y + pad.height)) {
+      //direction = Math.atan2(sy, -sx);
+    //}
   };
 
   // Initial positioning
