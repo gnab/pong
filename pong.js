@@ -44,7 +44,7 @@ function Game () {
     leftPad.render();
     rightPad.render();
 
-    if (leftPad.hit(ball) || rightPad.hit(ball)) {
+    if (leftPad.hitR(ball) || rightPad.hitL(ball)) {
       ball.flipX();
     }
 
@@ -196,13 +196,20 @@ function Pad (board, x) {
     this.y = board.height / 2 - this.height / 2;
   };
 
-  this.hit = function (ball) {
-    return false;
+  this.hitR = function (ball) {
+    var sx = Math.cos(ball.direction);
 
-    //var pad = leftPad;
-    //if (sx < 0 && (x <= pad.x + pad.width) && (y + 30 >= pad.y) && (y + 10 <= pad.y + pad.height)) {
-      //direction = Math.atan2(sy, -sx);
-    //}
+    if (sx < 0 && (ball.x <= this.x + this.width) && (ball.y + ball.r + ball.r/2 >= this.y) && (ball.y + ball.r/2 <= this.y + this.height)) {
+      return true;
+    }
+  };
+
+  this.hitL = function (ball) {
+    var sx = Math.cos(ball.direction);
+
+    if (sx > 0 && (ball.x + ball.d >= this.x) && (ball.y + ball.r + ball.r/2 >= this.y) && (ball.y + ball.r/2 <= this.y + this.height)) {
+      return true;
+    }
   };
 
   // Initial positioning
