@@ -14,8 +14,9 @@ var board = svg
         .duration(1000)
         .attr('opacity', 1);
 
+var keyboard = new Keyboard();
 var ball = new Ball();
-var leftPad = new Pad(30);
+var leftPad = new Pad(keyboard, 30);
 
 window.requestAnimFrame = (function(){
   return window.requestAnimationFrame       ||
@@ -37,7 +38,6 @@ function render () {
       x = ball.x,
       y = ball.y;
 
-
   var padY = leftPad.y;
   if (sx < 0 && (x <= 30 + 20) && (y + 30 >= padY) && (y + 10 <= padY + 150)) {
     direction = Math.atan2(sy, -sx);
@@ -47,26 +47,6 @@ function render () {
   ball.move();
 }
 
-var keyDown = false,
-    keyUp = false;
-
-d3.select(document.body)
-  .on('keydown', function () {
-      if (d3.event.keyCode === 40) {
-        keyDown = true;
-      }
-      else if (d3.event.keyCode === 38) {
-        keyUp = true;
-      }
-  })
-  .on('keyup', function () {
-      if (d3.event.keyCode === 40) {
-        keyDown = false;
-      }
-      else if (d3.event.keyCode === 38) {
-        keyUp = false;
-      }
-  });
 
 function Ball () {
   var svg,
@@ -121,17 +101,17 @@ function Ball () {
       .attr('fill', 'white');
 }
 
-function Pad (x) {
+function Pad (keyboard, x) {
   var svg, rect;
 
   this.x = x;
   this.y = 0;
 
   this.move = function () {
-    if (keyDown) {
+    if (keyboard.keyDown) {
       this.y += 4;
     }
-    else if (keyUp) {
+    else if (keyboard.keyUp) {
       this.y += -4;
     }
 
@@ -170,4 +150,29 @@ function Pad (x) {
       .attr('height', 150)
       .attr('width', 20)
       .attr('fill', 'white');
+}
+
+function Keyboard () {
+  var self = this;
+
+  this.keyDown = false;
+  this.keyUp = false;
+
+  d3.select(document.body)
+    .on('keydown', function () {
+        if (d3.event.keyCode === 40) {
+          self.keyDown = true;
+        }
+        else if (d3.event.keyCode === 38) {
+          self.keyUp = true;
+        }
+    })
+    .on('keyup', function () {
+        if (d3.event.keyCode === 40) {
+          self.keyDown = false;
+        }
+        else if (d3.event.keyCode === 38) {
+          self.keyUp = false;
+        }
+    });
 }
