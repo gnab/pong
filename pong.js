@@ -1,7 +1,9 @@
 var keyboard = new Keyboard();
 var board = new Board(keyboard, 640, 480);
 var ball = new Ball(board);
-var leftPad = new Pad(board, keyboard, 30);
+var leftPad = new Pad(board, 30);
+var rightPad = new Pad(board, board.width - 20 - 30);
+var computerPlayer = new FollowBall(rightPad, ball);
 
 window.requestAnimFrame = (function(){
   return window.requestAnimationFrame
@@ -28,7 +30,8 @@ function render () {
     direction = Math.atan2(sy, -sx);
   }
 
-  leftPad.move();
+  leftPad.move(keyboard.keyDown, keyboard.keyUp);
+  computerPlayer.move();
   ball.move();
 }
 
@@ -65,6 +68,8 @@ function Ball (board) {
   this.direction = Math.PI / 8;
   this.x = 100;
   this.y = 100;
+  this.r = 20;
+  this.d = this.r * 2;
 
   this.move = function () {
     var sx = Math.cos(this.direction),
@@ -78,18 +83,18 @@ function Ball (board) {
     if (this.x < 0 && sx < 0) {
       this.direction = Math.atan2(sy, -sx);
     }
-    else if (this.x + 40 > board.width && sx > 0) {
+    else if (this.x + this.d > board.width && sx > 0) {
       this.direction = Math.atan2(sy, -sx);
     }
 
     if (this.y < 0 && sy > 0) {
       this.direction = Math.atan2(-sy, sx);
     }
-    else if (this.y + 40 > board.height && sy < 0) {
+    else if (this.y + this.d > board.height && sy < 0) {
       this.direction = Math.atan2(-sy, sx);
     }
 
-    var ratio = circle[0][0].getBoundingClientRect().width / 40;
+    var ratio = circle[0][0].getBoundingClientRect().width / this.d;
     svg[0][0].style['-webkit-transform'] = 'translate3d(' + this.x * ratio + 'px, ' + this.y * ratio + 'px, 0)';
   };
 
@@ -104,13 +109,13 @@ function Ball (board) {
   // Contents
   circle = svg
     .append('circle')
-      .attr('cy', 20)
-      .attr('cx', 20)
-      .attr('r', 20)
+      .attr('cy', this.r)
+      .attr('cx', this.r)
+      .attr('r', this.r)
       .attr('fill', 'white');
 }
 
-function Pad (board, keyboard, x) {
+function Pad (board, x) {
   var svg, rect;
 
   this.x = x;
@@ -118,11 +123,11 @@ function Pad (board, keyboard, x) {
   this.height = 150;
   this.width = 20;
 
-  this.move = function () {
-    if (keyboard.keyDown) {
+  this.move = function (down, up) {
+    if (down) {
       this.y += 4;
     }
-    else if (keyboard.keyUp) {
+    else if (up) {
       this.y += -4;
     }
 
@@ -160,6 +165,16 @@ function Pad (board, keyboard, x) {
       .attr('height', this.height)
       .attr('width', this.width)
       .attr('fill', 'white');
+}
+
+function FollowBall (pad, ball) {
+  this.move = function () {
+    var padCenter = pad.y + pad.height / 2,
+        ballCenter = ball.y + ball.r;
+
+    pad.y = ballCenter - pad.height / 2;
+    pad.move(false, false);
+  };
 }
 
 function Keyboard () {
