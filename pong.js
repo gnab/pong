@@ -23,8 +23,8 @@ function render () {
       x = ball.x,
       y = ball.y;
 
-  var padY = leftPad.y;
-  if (sx < 0 && (x <= 30 + 20) && (y + 30 >= padY) && (y + 10 <= padY + 150)) {
+  var pad = leftPad;
+  if (sx < 0 && (x <= pad.x + pad.width) && (y + 30 >= pad.y) && (y + 10 <= pad.y + pad.height)) {
     direction = Math.atan2(sy, -sx);
   }
 
@@ -115,6 +115,8 @@ function Pad (board, keyboard, x) {
 
   this.x = x;
   this.y = 0;
+  this.height = 150;
+  this.width = 20;
 
   this.move = function () {
     if (keyboard.keyDown) {
@@ -124,24 +126,23 @@ function Pad (board, keyboard, x) {
       this.y += -4;
     }
 
-    // TODO: Take back in bounds checking
-    //var height = 150
-        //currentY = parseInt(pad.attr('y'), 10),
-        //newY = currentY + offset;
+    if (this.y < 0) {
+      this.y = 0;
+    }
+    else if (this.y > board.height - this.height) {
+      this.y = board.height - this.height;
+    }
 
-    //if (newY < 0) {
-      //pad.attr('y', 0);
-    //}
-    //else if (newY > 480 - 150) {
-      //pad.attr('y', 480 - 150);
-    //}
-    //else {
-      //pad.attr('y', newY);
-    //}
-
-    var ratio = rect[0][0].getBoundingClientRect().width / 20;
+    var ratio = rect[0][0].getBoundingClientRect().width / this.width;
     svg[0][0].style['-webkit-transform'] = 'translate3d(' + this.x * ratio + 'px, ' + this.y * ratio + 'px, 0)';
   };
+
+  this.center = function () {
+    this.y = board.height / 2 - this.height / 2;
+  };
+
+  // Initial positioning
+  this.center();
 
   // Layer
   svg = d3.select('body')
@@ -156,8 +157,8 @@ function Pad (board, keyboard, x) {
     .append('rect')
       .attr('x', 0)
       .attr('y', 0)
-      .attr('height', 150)
-      .attr('width', 20)
+      .attr('height', this.height)
+      .attr('width', this.width)
       .attr('fill', 'white');
 }
 
