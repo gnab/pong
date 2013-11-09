@@ -35,7 +35,7 @@ ball
     .attr('cy', 20)
     .attr('cx', 20)
     .attr('r', 20)
-    .attr('fill', '#ccc');
+    .attr('fill', 'white');
 
 window.requestAnimFrame = (function(){
   return window.requestAnimationFrame       ||
@@ -46,7 +46,7 @@ window.requestAnimFrame = (function(){
           };
 })();
 
-var speed = 4, direction = -Math.PI/4;
+var speed = 4, direction = Math.PI / 8;
 
 (function animloop(){
   render();
@@ -54,7 +54,7 @@ var speed = 4, direction = -Math.PI/4;
 })();
 
 var x = 100,
-    y = 100;
+    y = 200;
 
 function render () {
   var sx = Math.cos(direction),
@@ -80,7 +80,7 @@ function render () {
   }
 
   var padY = parseInt(leftPad.attr('y'), 10);
-  if (sx < 0 && (x <= 30 + 20) && (y - 20 >= padY) && (y - 20 <= padY + 150)) {
+  if (sx < 0 && (x <= 30 + 20) && (y + 30 >= padY) && (y + 10 <= padY + 150)) {
     direction = Math.atan2(sy, -sx);
   }
 
