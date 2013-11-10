@@ -3,7 +3,7 @@ var game = new Game().start();
 function Game () {
   var keyboard = new Keyboard(),
       board = new Board(keyboard, 640, 480),
-      ball = new Ball(board),
+      ball = new Ball(board, 10),
       leftPad = new Pad(board, 30),
       rightPad = new Pad(board, board.width - 20 - 30),
       player = new Player(keyboard, leftPad),
@@ -115,15 +115,15 @@ function Board (keyboard, width, height) {
               .attr('opacity', 1);
 }
 
-function Ball (board) {
+function Ball (board, radius) {
   var svg,
       circle;
 
-  this.speed = 4;
+  this.speed = 6;
   this.direction = Math.PI / 8;
   this.x = 100;
   this.y = 100;
-  this.r = 20;
+  this.r = radius;
   this.d = this.r * 2;
 
   this.move = function () {
@@ -177,7 +177,7 @@ function Pad (board, x) {
 
   this.x = x;
   this.y = 0;
-  this.height = 150;
+  this.height = 100;
   this.width = 20;
 
   this.render = function () {
@@ -234,12 +234,14 @@ function Pad (board, x) {
 }
 
 function Player (keyboard, pad) {
+  this.speed = 3;
+
   this.move = function () {
     if (keyboard.keyDown) {
-      pad.y += 4;
+      pad.y += this.speed;
     }
     else if (keyboard.keyUp) {
-      pad.y += -4;
+      pad.y += -this.speed;
     }
   };
 }
